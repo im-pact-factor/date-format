@@ -19,7 +19,7 @@ export function formate(
   isPad = false
 ): string {
   const getPad = (value: number): string => {
-    return isPad && value < 10 ? "0" + value : "" + value;
+    return isPad && value < 10 ? `0${value}` : `${value}`;
   };
 
   const dateInfo: DateInfo = {
@@ -29,7 +29,7 @@ export function formate(
     hour: date.getHours(),
     minute: date.getMinutes(),
     second: date.getSeconds(),
-    yyyy: "" + date.getFullYear(),
+    yyyy: `${date.getFullYear()}`,
     MM: getPad(date.getMonth() + 1),
     dd: getPad(date.getDate()),
     hh: getPad(date.getHours()),
@@ -37,22 +37,21 @@ export function formate(
     ss: getPad(date.getSeconds()),
   };
 
+  const dateInfoMap = new Map(Object.entries(dateInfo));
+
   if (typeof formatter === "function") {
     return formatter(dateInfo);
   }
 
   const formatMap: { [key: string]: string } = {
-    "date": "yyyy-MM-dd",
-    "datetime": "yyyy-MM-dd hh:mm:ss"
+    date: "yyyy-MM-dd",
+    datetime: "yyyy-MM-dd hh:mm:ss",
   };
 
   const formatPattern = formatMap[formatter] || formatter;
 
-  return formatPattern
-    .replace("yyyy", dateInfo.yyyy)
-    .replace("MM", dateInfo.MM)
-    .replace("dd", dateInfo.dd)
-    .replace("hh", dateInfo.hh)
-    .replace("mm", dateInfo.mm)
-    .replace("ss", dateInfo.ss);
+  return formatPattern.replace(
+    /(yyyy|MM|dd|hh|mm|ss)/g,
+    (match) => dateInfoMap.get(match) || ""
+  );
 }
